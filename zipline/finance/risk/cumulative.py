@@ -18,6 +18,7 @@ import logbook
 import math
 import numpy as np
 
+<<<<<<< HEAD
 from zipline.finance import trading
 import zipline.utils.math_utils as zp_math
 
@@ -25,11 +26,24 @@ import pandas as pd
 from pandas.tseries.tools import normalize_date
 
 from six import iteritems
+=======
+import zipline.finance.trading as trading
+import zipline.utils.math_utils as zp_math
+
+import pandas as pd
+import functools
+>>>>>>> origin/cumulative-uses-arithmetic
 
 from . risk import (
     alpha,
     check_entry,
+<<<<<<< HEAD
     choose_treasury,
+=======
+    information_ratio,
+    choose_treasury,
+    sortino_ratio,
+>>>>>>> origin/cumulative-uses-arithmetic
 )
 
 log = logbook.Logger('Risk Cumulative')
@@ -67,6 +81,7 @@ def sharpe_ratio(algorithm_volatility, annualized_return, treasury_return):
         / algorithm_volatility)
 
 
+<<<<<<< HEAD
 def sortino_ratio(annualized_algorithm_return, treasury_return, downside_risk):
     """
     http://en.wikipedia.org/wiki/Sortino_ratio
@@ -116,6 +131,8 @@ def information_ratio(algo_volatility, algorithm_return, benchmark_return):
         / algo_volatility)
 
 
+=======
+>>>>>>> origin/cumulative-uses-arithmetic
 class RiskMetricsCumulative(object):
     """
     :Usage:
@@ -144,6 +161,7 @@ class RiskMetricsCumulative(object):
         """
 
         self.treasury_curves = trading.environment.treasury_curves
+        self.treasury_period_returns = []
         self.start_date = sim_params.period_start.replace(
             hour=0, minute=0, second=0, microsecond=0
         )
@@ -190,10 +208,17 @@ class RiskMetricsCumulative(object):
         self.mean_benchmark_returns = None
         self.annualized_benchmark_returns = None
 
+<<<<<<< HEAD
         self.compounded_log_returns = pd.Series(index=cont_index)
         self.algorithm_period_returns = pd.Series(index=cont_index)
         self.benchmark_period_returns = pd.Series(index=cont_index)
         self.excess_returns = pd.Series(index=cont_index)
+=======
+        self.annualized_mean_returns = None
+
+        self.compounded_log_returns = []
+        self.moving_avg = []
+>>>>>>> origin/cumulative-uses-arithmetic
 
         self.latest_dt = cont_index[0]
 
@@ -202,6 +227,7 @@ class RiskMetricsCumulative(object):
 
         self.max_drawdown = 0
         self.current_max = -np.inf
+<<<<<<< HEAD
         self.daily_treasury = pd.Series(index=self.trading_days)
 
     def get_minute_index(self, sim_params):
@@ -221,6 +247,31 @@ class RiskMetricsCumulative(object):
 
     def get_daily_index(self):
         return self.trading_days
+=======
+        self.excess_returns = []
+        self.daily_treasury = pd.Series(index=self.trading_days)
+
+    def initialize_minute_indices(self, sim_params):
+        self.algorithm_returns_cont = pd.Series(index=pd.date_range(
+            sim_params.first_open, sim_params.last_close,
+            freq="Min"))
+        self.benchmark_returns_cont = pd.Series(index=pd.date_range(
+            sim_params.first_open, sim_params.last_close,
+            freq="Min"))
+        self.annualized_mean_returns_cont = pd.Series(index=pd.date_range(
+            sim_params.first_open, sim_params.last_close,
+            freq="Min"))
+
+    def initialize_daily_indices(self):
+        self.algorithm_returns_cont = pd.Series(index=self.trading_days)
+        self.benchmark_returns_cont = pd.Series(index=self.trading_days)
+        self.annualized_mean_returns_cont = pd.Series(
+            index=self.trading_days)
+
+    @property
+    def last_return_date(self):
+        return self.algorithm_returns.index[-1]
+>>>>>>> origin/cumulative-uses-arithmetic
 
     def update(self, dt, algorithm_returns, benchmark_returns):
         # Keep track of latest dt for use in to_dict and other methods
@@ -230,6 +281,7 @@ class RiskMetricsCumulative(object):
         self.algorithm_returns_cont[dt] = algorithm_returns
         self.algorithm_returns = self.algorithm_returns_cont.valid()
 
+<<<<<<< HEAD
         if self.create_first_day_stats:
             if len(self.algorithm_returns) == 1:
                 self.algorithm_returns = pd.Series(
@@ -240,6 +292,15 @@ class RiskMetricsCumulative(object):
                                             min_periods=1)
 
         self.annualized_mean_returns = self.mean_returns * 252
+=======
+        mean_return = (np.sum(self.algorithm_returns)
+                       /
+                       np.size(self.algorithm_returns))
+
+        self.annualized_mean_returns_cont[dt] = mean_return * 252
+        self.annualized_mean_returns = \
+            self.annualized_mean_returns_cont.valid()
+>>>>>>> origin/cumulative-uses-arithmetic
 
         self.benchmark_returns_cont[dt] = benchmark_returns
         self.benchmark_returns = self.benchmark_returns_cont.valid()
@@ -295,8 +356,13 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
         # caching the treasury rates for the minutely case is a
         # big speedup, because it avoids searching the treasury
         # curves on every minute.
+<<<<<<< HEAD
         # In both minutely and daily, the daily curve is always used.
         treasury_end = dt.replace(hour=0, minute=0)
+=======
+        treasury_end = self.algorithm_returns.index[-1].replace(
+            hour=0, minute=0)
+>>>>>>> origin/cumulative-uses-arithmetic
         if np.isnan(self.daily_treasury[treasury_end]):
             treasury_period_return = choose_treasury(
                 self.treasury_curves,
@@ -307,6 +373,7 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
                 treasury_period_return
         self.treasury_period_return = \
             self.daily_treasury[treasury_end]
+<<<<<<< HEAD
         self.excess_returns[self.latest_dt] = (
             self.algorithm_period_returns[self.latest_dt]
             -
@@ -317,6 +384,16 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
         self.metrics.downside_risk[dt] = self.calculate_downside_risk()
         self.metrics.sortino[dt] = self.calculate_sortino()
         self.metrics.information[dt] = self.calculate_information()
+=======
+        self.treasury_period_returns.append(self.treasury_period_return)
+        self.excess_returns.append(
+            self.algorithm_period_returns[-1] - self.treasury_period_return)
+        self.beta.append(self.calculate_beta()[0])
+        self.alpha.append(self.calculate_alpha())
+        self.sharpe.append(self.calculate_sharpe())
+        self.sortino.append(self.calculate_sortino())
+        self.information.append(self.calculate_information())
+>>>>>>> origin/cumulative-uses-arithmetic
         self.max_drawdown = self.calculate_max_drawdown()
 
         if self.create_first_day_stats:
@@ -419,9 +496,15 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
         """
         http://en.wikipedia.org/wiki/Sharpe_ratio
         """
+<<<<<<< HEAD
         return sharpe_ratio(self.metrics.algorithm_volatility[self.latest_dt],
                             self.annualized_mean_returns[self.latest_dt],
                             self.daily_treasury[self.latest_dt.date()])
+=======
+        return sharpe_ratio(self.algorithm_volatility[-1],
+                            self.annualized_mean_returns[-1],
+                            self.daily_treasury.valid()[-1])
+>>>>>>> origin/cumulative-uses-arithmetic
 
     def calculate_sortino(self):
         """
@@ -451,12 +534,15 @@ algorithm_returns ({algo_count}) in range {start} : {end} on {dt}"
 
     def calculate_volatility(self, daily_returns):
         return np.std(daily_returns) * math.sqrt(252)
+<<<<<<< HEAD
 
     def calculate_downside_risk(self):
         rets = self.algorithm_returns
         mar = self.mean_returns
         downside_diff = (rets[rets < mar] - mar).valid()
         return np.std(downside_diff) * math.sqrt(252)
+=======
+>>>>>>> origin/cumulative-uses-arithmetic
 
     def calculate_beta(self):
         """

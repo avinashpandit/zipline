@@ -23,7 +23,11 @@ from zipline.utils import factory
 
 from zipline.finance.trading import SimulationParameters
 
+<<<<<<< HEAD
 from . import answer_key
+=======
+import answer_key
+>>>>>>> origin/cumulative-uses-arithmetic
 ANSWER_KEY = answer_key.ANSWER_KEY
 
 
@@ -38,7 +42,11 @@ class TestRisk(unittest.TestCase):
             minute=0,
             tzinfo=pytz.utc)
         end_date = datetime.datetime(
+<<<<<<< HEAD
             year=2006, month=12, day=29, tzinfo=pytz.utc)
+=======
+            year=2006, month=12, day=31, tzinfo=pytz.utc)
+>>>>>>> origin/cumulative-uses-arithmetic
 
         self.sim_params = SimulationParameters(
             period_start=start_date,
@@ -61,6 +69,7 @@ class TestRisk(unittest.TestCase):
     def test_algorithm_volatility_06(self):
         np.testing.assert_almost_equal(
             ANSWER_KEY.ALGORITHM_CUMULATIVE_VOLATILITY,
+<<<<<<< HEAD
             self.cumulative_metrics_06.metrics.algorithm_volatility.values)
 
     def test_sharpe_06(self):
@@ -116,3 +125,12 @@ class TestRisk(unittest.TestCase):
         # generate a full answer key for it. For now, ensure it's just
         # "not zero"
         self.assertNotEqual(self.cumulative_metrics_06.max_drawdown, 0.0)
+=======
+            self.cumulative_metrics_06.algorithm_volatility)
+
+    def test_sharpe_06(self):
+        np.testing.assert_almost_equal(
+            ANSWER_KEY.ALGORITHM_CUMULATIVE_SHARPE,
+            self.cumulative_metrics_06.sharpe,
+            decimal=2)
+>>>>>>> origin/cumulative-uses-arithmetic

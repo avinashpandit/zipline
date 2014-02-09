@@ -26,7 +26,11 @@ from zipline.finance import trading
 
 import pandas as pd
 
+<<<<<<< HEAD
 from . import risk
+=======
+import risk
+>>>>>>> origin/cumulative-uses-arithmetic
 from . risk import (
     alpha,
     check_entry,

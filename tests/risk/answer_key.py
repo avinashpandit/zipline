@@ -232,6 +232,7 @@ class AnswerKey(object):
             'Sim Cumulative', 'P', 4, 254),
 
         'ALGORITHM_CUMULATIVE_SHARPE': DataIndex(
+<<<<<<< HEAD
             'Sim Cumulative', 'R', 4, 254),
 
         'CUMULATIVE_DOWNSIDE_RISK': DataIndex(
@@ -249,6 +250,9 @@ class AnswerKey(object):
         'CUMULATIVE_ALPHA': DataIndex(
             'Sim Cumulative', 'AC', 4, 254),
 
+=======
+            'Sim Cumulative', 'R', 4, 254)
+>>>>>>> origin/cumulative-uses-arithmetic
     }
 
     def __init__(self):
