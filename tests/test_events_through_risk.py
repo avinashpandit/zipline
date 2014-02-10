@@ -154,25 +154,15 @@ class TestEventsThroughRisk(unittest.TestCase):
             crm = algo.perf_tracker.cumulative_risk_metrics
 
             np.testing.assert_almost_equal(
-<<<<<<< HEAD
                 crm.algorithm_returns[current_dt],
-=======
-                crm.algorithm_returns[-1],
->>>>>>> origin/cumulative-uses-arithmetic
                 expected_algorithm_returns[current_dt],
                 decimal=6)
 
             np.testing.assert_almost_equal(
-<<<<<<< HEAD
                 crm.metrics.sharpe[current_dt],
                 expected_sharpe[current_dt],
                 decimal=6,
                 err_msg="Mismatch at %s" % (current_dt,))
-=======
-                crm.sharpe[-1],
-                expected_sharpe[current_dt],
-                decimal=6)
->>>>>>> origin/cumulative-uses-arithmetic
 
     def test_minute_buy_and_hold(self):
         with trading.TradingEnvironment():
@@ -315,15 +305,9 @@ class TestEventsThroughRisk(unittest.TestCase):
             self.assertEqual(1, len(algo.portfolio.positions), "There should "
                              "be one position after the first day.")
 
-<<<<<<< HEAD
             self.assertEquals(
                 0,
                 crm.metrics.algorithm_volatility[algo.datetime.date()],
-=======
-            self.assertEqual(
-                0.0,
-                np.isnan(crm.algorithm_volatility[-1]),
->>>>>>> origin/cumulative-uses-arithmetic
                 "On the first day algorithm volatility does not exist.")
 
             second_msg = next(gen)
